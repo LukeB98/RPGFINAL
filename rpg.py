@@ -22,7 +22,7 @@ clock = pygame.time.Clock()#in order to set fps with clock.tick(fps)
 #ninja image that I made
 imagelocation = (str(os.getcwd()) + "\Pictures")
 musiclocation = (str(os.getcwd()) +  "\Music")
-ninjaImg = pygame.image.load(str(imagelocation) + "\\ninja32px.png").convert()#importing a local image
+ninjaImg = pygame.image.load(str(imagelocation) + "\\ninja32px.png")#importing a local image
 ninx = xwindow/2#where the image will be placed
 niny = ywindow/2
 
@@ -33,7 +33,7 @@ fontrect = fontsurface.get_rect()#Get rectangle to place font surface on?
 fontrect.center = (ninx, 50)#don't know.  Just include this
 
 #music
-pygame.mixer.music.load(musiclocation +"\Festival.mp3")
+pygame.mixer.music.load(musiclocation +"\Crusade.mp3")
 pygame.mixer.music.play(-1, 0.0)#Plays infinite times starting at 0.0
 
 #object.play(), and object.stop() to start and stop sounds
@@ -50,7 +50,7 @@ def place_tiles(filename, xwindow, ywindow):#add x and y offset here too.
 	placey = 0
 	tiles = True
 	while tiles:#while there are still tiles
-		image = (tmxdata.get_tile_image(tilex, tiley, 0)).convert_alpha()
+		image = (tmxdata.get_tile_image(tilex, tiley, 0))
 		window.blit(image, [placex, placey])
 		if placey == (ywindow-32) and placex == (xwindow-32):
 			tiles = False
@@ -101,41 +101,42 @@ class Enemy(pygame.sprite.Sprite):
 	def move_up(self):
 		if self.y > 31:
 			#self.move_dir = "up"
-			self.times = 4
+			self.times = 8
 			
 	def move_down(self):
 		if self.y < (self.yrange - 32):
 			#self.move_dir = "down"
-			self.times = 4
+			self.times = 8
 
 	def move_left(self):
 		if self.x > 31:
 			#self.move_dir = "left"
-			self.times = 4
+			self.times = 8
 
 	def move_right(self):
 		if self.x < self.xrange - 32:
 			#self.move_dir = "right"
-			self.times = 4
+			self.times = 8
 			
 	def update(self):
 		#cycle = 0
+		self.rect = self.image.get_rect()
 		window.blit(self.image, [self.x, self.y])
+		
 		while self.times > 0:
 			window.blit(self.image, [self.x, self.y])
 			self.times -= 1
-			
 			if self.move_dir == "up":
-				self.y -= 8
+				self.y -= 4
 				
 			elif self.move_dir == "down":
-				self.y += 8
+				self.y += 4
 			
 			elif self.move_dir == "left":
-				self.x -= 8
+				self.x -= 4
 			
 			elif self.move_dir == "right":
-				self.x += 8
+				self.x += 4
 			
 			else:
 				window.blit(self.image, [self.x, self.y])
@@ -179,6 +180,7 @@ class Ninja(pygame.sprite.Sprite):
 			
 	def update(self):
 		cycle = 0
+		self.rect = self.image.get_rect()
 		window.blit(self.image, [self.x, self.y])
 		while self.times > 0:
 			window.blit(self.image, [self.x, self.y])
@@ -217,7 +219,8 @@ while active:
 		if event.type == pygame.QUIT:
 			pygame.quit()
 		#pygame.time.delay(120)
-		if action[pygame.K_w]:
+
+		elif action[pygame.K_w]:
 			ninja.move_up()
 			chance_move = random.randint(0, 9)
 		elif action[pygame.K_s]:
@@ -236,7 +239,7 @@ while active:
 	updatelocations = ninja.update()
 	xloc = int(updatelocations[0])
 	yloc = int(updatelocations[1])
-	if chance_move < 5:
+	if chance_move < 4:
 		enemy_move_dir = enemy1.AI(xloc, yloc)
 		if enemy_move_dir == "up":
 			enemy1.move_up()
@@ -249,23 +252,6 @@ while active:
 	enemy1.update()
 	pygame.display.update()
 	clock.tick(40)	#FPS
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
