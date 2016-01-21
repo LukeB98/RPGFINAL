@@ -18,9 +18,9 @@ pygame.display.set_icon('ninjafront.png')
 pygame.mixer.music.load(musiclocation +"\Crusade.mp3")
 pygame.mixer.music.play(-1, 0.0)#Plays infinite times starting at 0.0
 '''
-class mapgenerate():
+class map():
 	
-	def __init__(self, imagelocation, filename, (winsizex, winsizey), (playerlocx, playerlocationy), (tilexstart, tileystart)):
+	def __init__(self, imagelocation, filename, winsizex, winsizey, playerlocx, playerlocationy, tilexstart, tileystart):
 		self.tmxdata = load_pygame("{}\{}".format(imagelocation, filename))
 		self.xdisplay,self.ydisplay = (winsizex,winsizey)
 		self.xtilelimit,self.ytilelimit = (winsizex/32,winsizey/32)
@@ -43,9 +43,21 @@ class mapgenerate():
 			else:
 				self.tilex += 1
 				self.placex += 32
-#
-#
-#
+	def tilecollision(self, playerxpos, playerypos, spritemovedir):
+		playerxpos = playerxpos/32
+		playerypos = playerypos/32
+		surface_layer = 2
+		if spritemovedir == "up":
+			tile = [playerxpos, playerypos - 1]
+		elif spritemovedir == "down":
+			tile = [playerxpos, playerypos + 1]
+		elif spritemovedir == "left":
+			tile = [playerxpos - 1, playerypos]
+		elif spritemovedir == "right":
+			tile = [playerxpos + 1, playerypos]
+		else:
+			return("none")
+		tile_to_check = getTileProperties(tile[0], tile[1], surface_layer)
 #
 #
 #
