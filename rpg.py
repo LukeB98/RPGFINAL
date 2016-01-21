@@ -62,155 +62,143 @@ def place_tiles(filename, xwindow, ywindow):#add x and y offset here too.
 		else:
 			tilex += 1
 			placex += 32
-	return()
+	return_rects = []
+	for rect in (pytmx.util_pygame.build_rects(tmxdata, "Collision layer", tileset = None, real_gid=None)):
+		return_rects.append(rect)
+	return(return_rects)
 
 #
 #ENEMY CLASS
 #ENEMY CLASS
 #
+class map_tile(pygame.sprite.Sprite):
+	def __init__(self, rectangle):
+		super(map_tile, self).__init__()
+		pygame.sprite.Sprite.__init__(self)
+		self.rect = rectangle
+	def rect(self):
+		return(self.rect)
 
 class Enemy(pygame.sprite.Sprite):
 
-	def __init__(self, imagename, xwindow, ywindow, enemyxpos, enemyypos):#self, image using for sprite, xstartlocation and y start location
+	def __init__(self, xwindow, ywindow):#self, image using for sprite, xstartlocation and y start location
+		super(Enemy, self).__init__()
 		pygame.sprite.Sprite.__init__(self)  #pygame.sprite.Sprite.__init__(self)
-		self.image = pygame.image.load("{}\{}".format(imagelocation, imagename))
+		self.image = pygame.Surface((32,32))
+		self.image.fill(colors["WHITE"])
+		self.set_properties()
+		self.vspeed = 0
+		self.hspeed = 0
+		#self.set_position(characterxpos, characterypos)
+	def set_properties(self):
 		self.rect = self.image.get_rect()
-		self.xrange = xwindow
-		self.yrange = ywindow
-		self.x = enemyxpos 
-		self.y = enemyypos
-		self.move_dir = "none"
-		self.times = 0
+		self.origin_x = self.rect.centerx
+		self.origin_y = self.rect.centery
+		
+	def set_image(self, imagelocation, filename):
+		self.image = pygame.image.load("{}\{}".format(imagelocation, filename))
+		self.set_properties()
+		
+	def change_speed(self,hchange,vchange):
+		self.hspeed += hchange
+		self.vspeed += vchange
+	'''def movement_choice(self, play_x, play_y):
+		self.get_to_x = play_x/32
+		self.get_to_y = play_y/32
+		self.block_x = self.rect.x
+	def AI(self, playerposx, playerposy):
+			pass'''
+	def set_position(self,x,y):
+		self.rect.x = x #- self.origin_x
+		self.rect.y = y #- self.origin_y
+		
+	def update(self):
+		
+		self.rect.x += self.hspeed
+		self.rect.y += self.vspeed
+		window.blit(self.image, self.rect)
+#
+#ENEMY CLASS
+#ENEMY CLASS
+#
+
+class Player(pygame.sprite.Sprite):
+
+	def __init__(self, xwindow, ywindow):#self, image using for sprite, xstartlocation and y start location
+		super(Player, self).__init__()
+		pygame.sprite.Sprite.__init__(self)  #pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.Surface((32,32))
+		self.image.fill(colors["WHITE"])
+		self.set_properties()
+		self.vspeed = 0
+		self.hspeed = 0
+		self.moveblock = 0
+		#self.set_position(characterxpos, characterypos)
+	def set_properties(self):
+		self.rect = self.image.get_rect()
+		self.origin_x = self.rect.centerx
+		self.origin_y = self.rect.centery
+		
+	def set_image(self, imagelocation, filename):
+		self.image = pygame.image.load("{}\{}".format(imagelocation, filename))
+		self.set_properties()
+		#14:05
+	def change_speed(self,hchange,vchange):
+		self.hspeed += hchange
+		self.vspeed += vchange
+		#if self.hspeed or self.vspeed !=0:
+		#	self.moveblock += 8
 	
-	def AI(self, charx, chary):
-		if self.x < (charx - 32): #Enemy is to the left, needs to move right
-			self.move_dir = "right"
-			return("right")
-		elif self.x > (charx + 32):
-			self.move_dir = "left"
-			return("left")
-		elif self.y < (chary - 32):
-			self.move_dir = "down"
-			return("down")
-		elif self.y > (chary + 32):
-			self.move_dir = "up"
-			return("up")
-		else:
-			return("none")
-			
-	def move_up(self):
-		if self.y > 31:
-			#self.move_dir = "up"
-			self.times = 8
-			
-	def move_down(self):
-		if self.y < (self.yrange - 32):
-			#self.move_dir = "down"
-			self.times = 8
-
-	def move_left(self):
-		if self.x > 31:
-			#self.move_dir = "left"
-			self.times = 8
-
-	def move_right(self):
-		if self.x < self.xrange - 32:
-			#self.move_dir = "right"
-			self.times = 8
-			
-	def update(self):
-		#cycle = 0
-		self.rect = self.image.get_rect()
-		window.blit(self.image, [self.x, self.y])
+	def set_position(self,x,y):
+		self.rect.x = x
+		self.rect.y = y
 		
-		while self.times > 0:
-			window.blit(self.image, [self.x, self.y])
-			self.times -= 1
-			if self.move_dir == "up":
-				self.y -= 4
-				
-			elif self.move_dir == "down":
-				self.y += 4
-			
-			elif self.move_dir == "left":
-				self.x -= 4
-			
-			elif self.move_dir == "right":
-				self.x += 4
-			
-			else:
-				window.blit(self.image, [self.x, self.y])
-#
-#ENEMY CLASS
-#ENEMY CLASS
-#
+	def update(self, collidable):
+		self.rect.x += self.hspeed
+		collision_list = pygame.sprite.spritecollide(self, collidable, False)
+		for collided_object in collision_list:
+			if self.hspeed > 0:
+				self.rect.right = collided_object.rect.left
+			elif self.hspeed < 0:
+				self.rect.left = collided_object.rect.right
+		self.rect.y += self.vspeed
+		collision_list = pygame.sprite.spritecollide(self, collidable, False)
+		for collided_object in collision_list:
+			if self.vspeed > 0:
+				self.rect.bottom = collided_object.rect.top
+			elif self.vspeed < 0:
+				self.rect.top = collided_object.rect.bottom
 
-class Ninja(pygame.sprite.Sprite):
+	#	self.rect.x += self.hspeed
+	#	self.rect.y += self.vspeed
+		window.blit(self.image, self.rect)
 
-	def __init__(self, imagename, xwindow, ywindow, characterxpos, characterypos):#self, image using for sprite, xstartlocation and y start location
-		pygame.sprite.Sprite.__init__(self)  #pygame.sprite.Sprite.__init__(self)
-		self.image = pygame.image.load("{}\{}".format(imagelocation, imagename))
-		self.rect = self.image.get_rect()
-		self.xrange = xwindow
-		self.yrange = ywindow
-		self.x = characterxpos
-		self.y = characterypos
-		self.move_dir = "none"
-		self.times = 0
-		
-	def move_up(self):
-		if self.y > 31:
-			self.move_dir = "up"
-			self.times = 4
-			
-	def move_down(self):
-		if self.y < (self.yrange - 32):
-			self.move_dir = "down"
-			self.times = 4
-
-	def move_left(self):
-		if self.x > 31:
-			self.move_dir = "left"
-			self.times = 4
-
-	def move_right(self):
-		if self.x < self.xrange - 32:
-			self.move_dir = "right"
-			self.times = 4
-			
-	def update(self):
-		cycle = 0
-		self.rect = self.image.get_rect()
-		window.blit(self.image, [self.x, self.y])
-		while self.times > 0:
-			window.blit(self.image, [self.x, self.y])
-			self.times -= 1
-			
-			if self.move_dir == "up":
-				self.y -= 8
-				
-			elif self.move_dir == "down":
-				self.y += 8
-			
-			elif self.move_dir == "left":
-				self.x -= 8
-			
-			elif self.move_dir == "right":
-				self.x += 8
-			
-			else:
-				window.blit(self.image, [self.x, self.y])
-		return [self.x, self.y]
-
-		
 xloc = 0
 yloc = 0
 enemyxloc = 64*4
 enemyyloc = 64*4
 MAP = "tiledstuff1.tmx"
-place_tiles("tiledstuff1.tmx", xwindow, ywindow)
-ninja = Ninja("ninja32px.png", xwindow, ywindow, xloc, yloc)#(self, filename, xloc, yloc)
-enemy1 = Enemy("redenemy.png", xwindow, ywindow, enemyxloc, enemyyloc)
+map_collisions = place_tiles("tiledstuff1.tmx", xwindow, ywindow)
+ninja = Player(xwindow, ywindow)#(self, filename, xloc, yloc)
+ninja.set_image(imagelocation,"ninja32px.png")
+ninja.set_position(0,0)
+
+first_enemy = Enemy(xwindow, ywindow)
+first_enemy.set_image(imagelocation, "redenemy.png")
+first_enemy.set_position(64,64)
+
+second_enemy = Enemy(xwindow, ywindow)
+second_enemy.set_image(imagelocation, "redenemy.png")
+second_enemy.set_position(128,128)
+
+
+collidable_objects = pygame.sprite.Group()
+collidable_objects.add(first_enemy,second_enemy)
+for item in map_collisions:
+	add_collision = map_tile(item)#class that does map collisions, haven't expanded it yet.
+	collidable_objects.add(add_collision)#add the rectangles made in the above function into collision layer
+
+
 while active:
 	chance_move = 9
 #filename, xwindow, ywindow, xposition, yposition, replace_tiles
@@ -219,37 +207,41 @@ while active:
 		if event.type == pygame.QUIT:
 			pygame.quit()
 		#pygame.time.delay(120)
-
-		elif action[pygame.K_w]:
-			ninja.move_up()
-			chance_move = random.randint(0, 9)
-		elif action[pygame.K_s]:
-			ninja.move_down()
-			chance_move = random.randint(0, 9)
-		elif action[pygame.K_a]:
-			ninja.move_left()
-			chance_move = random.randint(0, 9)
-		elif action[pygame.K_d]:
-			ninja.move_right()			
-			chance_move = random.randint(0, 9)
+		if event.type == pygame.KEYDOWN:#change_speed(self,hchange,vchange)
+			if event.key == pygame.K_w:
+				ninja.change_speed(0,-4)
+				chance_move = random.randint(0, 9)
+			if event.key == pygame.K_s:
+				ninja.change_speed(0,4)
+				chance_move = random.randint(0, 9)
+			if event.key == pygame.K_a:
+				ninja.change_speed(-4,0)
+				chance_move = random.randint(0, 9)
+			if event.key == pygame.K_d:
+				ninja.change_speed(4,0)
+				chance_move = random.randint(0, 9)
+		if event.type == pygame.KEYUP:
+			if event.key == pygame.K_w:
+				ninja.change_speed(0,4)
+				chance_move = random.randint(0, 9)
+			if event.key == pygame.K_s:
+				ninja.change_speed(0,-4)
+				chance_move = random.randint(0, 9)
+			if event.key == pygame.K_a:
+				ninja.change_speed(4,0)
+				chance_move = random.randint(0, 9)
+			if event.key == pygame.K_d:
+				ninja.change_speed(-4,0)
+				chance_move = random.randint(0, 9)
+		event = None
 	#window.blit(ninja.image, ninja.rect)
-			#pygame.mixer.music.stop()	
+	#pygame.mixer.music.stop()	
 	place_tiles("tiledstuff1.tmx", xwindow, ywindow)#Placing background with pytmx + tiled
 	#window.blit(fontsurface, fontrect)
-	updatelocations = ninja.update()
-	xloc = int(updatelocations[0])
-	yloc = int(updatelocations[1])
-	if chance_move < 4:
-		enemy_move_dir = enemy1.AI(xloc, yloc)
-		if enemy_move_dir == "up":
-			enemy1.move_up()
-		elif enemy_move_dir == "down":
-			enemy1.move_down()
-		elif enemy_move_dir == "left":
-			enemy1.move_left()
-		elif enemy_move_dir == "right":
-			enemy1.move_left()
-	enemy1.update()
+	ninja.update(collidable_objects)
+	first_enemy.update()
+	second_enemy.update()
+
 	pygame.display.update()
 	clock.tick(40)	#FPS
 	
