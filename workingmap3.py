@@ -1,7 +1,6 @@
-import pygame, sys, pytmx, os, random, math
+import pygame, sys, pytmx, os, random, math, pdb
 from pytmx import load_pygame
-#in this version I'm shooting to make movement more realistic + accurate.
-#Next will be player mechanics
+
 pygame.init() #initilizing the pygame window
 
 colors = {#My color dictionary
@@ -12,10 +11,10 @@ colors = {#My color dictionary
 	"GREEN": [65, 167, 72]
 }
 
-l_view = 255#left and top need to be 1 pixel smaller
-r_view = 544#THESE ARE THE WINDOW DIMENSIONS.  Change these at your own risk, but make sure r_view and b_view are a multiple of 32
-t_view = 223#And make sure 
-b_view = 416
+l_view = 287#255#left and top need to be 1 pixel smalle
+r_view = 512#544
+t_view = 255#223
+b_view = 352#384#416
 
 
 
@@ -28,14 +27,8 @@ active = True #keeping the while loop going until not active
 clock = pygame.time.Clock()#in order to set fps with clock.tick(fps)
 
 #ninja image that I made
-cwd = str(os.getcwd())
-imagelocation = (cwd + "\Pictures")
-musiclocation = (cwd +  "\Music")
-
-maps = (cwd + "\Pictures\Maps")
-menu_pics = (cwd + "\Menu crap")
-
-
+imagelocation = (str(os.getcwd()) + "\Pictures")
+musiclocation = (str(os.getcwd()) +  "\Music")
 ninjaImg = pygame.image.load(str(imagelocation) + "\\ninja32px.png")#importing a local image
 ninx = xwindow/2#where the image will be placed
 niny = ywindow/2
@@ -48,7 +41,7 @@ fontrect.center = (ninx, 50)#don't know.  Just include this
 
 #music
 pygame.mixer.music.load(musiclocation +"\Crusade.mp3")
-#pygame.mixer.music.play(-1, 0.0)#Plays infinite times starting at 0.0
+pygame.mixer.music.play(-1, 0.0)#Plays infinite times starting at 0.0
 
 #object.play(), and object.stop() to start and stop sounds
 
@@ -66,8 +59,8 @@ class map(pygame.sprite.Sprite):
 		super(map, self).__init__()
 		pygame.sprite.Sprite.__init__(self)
 		#ONLY LOADS bottom layer right now
-		self.locate,self.map_load = map_file_location, map_to_load
-		self.tmxdata = load_pygame("{}\{}".format(self.locate, self.map_load))
+		self.locate,self.map_load = map_file_location,map_to_load
+		self.tmxdata = load_pygame("{}\{}".format(map_file_location, map_to_load))
 		
 		self.player_object = player_object
 		
@@ -88,10 +81,6 @@ class map(pygame.sprite.Sprite):
 		self.right_viewbox = right
 		self.top_viewbox = top
 		self.bottom_viewbox = bottom
-		
-	def set_properties(self, x_length, y_length):
-		self.map_x = x_length
-		self.map_y = y_length
 		
 	def load_entire_map(self, map_tile_width, map_tile_height, surface):
 		tilex,tiley,placex,placey = 0,0,0,0#the tile being placed, and where it's being placed
@@ -127,62 +116,42 @@ class map(pygame.sprite.Sprite):
 			for item in collidable_layer:
 				item.rect.x += self.xtilestart*32
 				item.rect.y += self.ytilestart*32
-		keep_going = 0
-
-
-		if self.xtilestart == 0:
-			self.left_viewbox.set_position(-1)
-			self.left_viewbox.update()
-			if self.xtilestart == self.map_x -25:
-				self.right_viewbox.set_position(xwindow)
-				self.right_viewbox.update()
-			keep_going +=5
-			
-		if self.ytilestart == 0:
-			self.top_viewbox.set_position(-1)
+				
+		if self.ytilestart > 0 and self.ytilestart < map_y -20:
+			self.top_viewbox.set_position(t_view)
+			self.bottom_viewbox.set_position(b_view)
 			self.top_viewbox.update()
-			if self.ytilestart == self.map_y -20:
-				self.bottom_viewbox.set_position(ywindow)			
-				self.bottom_viewbox.update()
-			keep_going +=10
+			self.bottom_viewbox.update()
 			
-		if keep_going == 5:
-			if self.ytilestart > 0 and self.ytilestart < self.map_y -20:
-				self.top_viewbox.set_position(t_view)
-				self.bottom_viewbox.set_position(b_view)
-				self.top_viewbox.update()
-				self.bottom_viewbox.update()
-				
-			elif self.ytilestart == 0:
-				self.top_viewbox.set_position(-1)
-				self.bottom_viewbox.set_position(b_view)
-				self.top_viewbox.update()
-				self.bottom_viewbox.update()
-				
-			elif self.ytilestart == self.map_y - 20 :
-				self.top_viewbox.set_position(t_view)
-				self.bottom_viewbox.set_position(ywindow)
-				self.top_viewbox.update()
-				self.bottom_viewbox.update()
-				
-		if keep_going == 10:	
-			if self.xtilestart > 0 and self.xtilestart < self.map_x -25:
-				self.right_viewbox.set_position(r_view)
-				self.left_viewbox.set_position(l_view)
-				self.left_viewbox.update()
-				self.right_viewbox.update()
-				
-			elif self.xtilestart == 0:
-				self.left_viewbox.set_position(-1)
-				self.right_viewbox.set_position(r_view)
-				self.left_viewbox.update()
-				self.right_viewbox.update()
-				
-			elif self.xtilestart == self.map_x - 25:
-				self.left_viewbox.set_position(l_view)
-				self.right_viewbox.set_position(xwindow)
-				self.left_viewbox.update()
-				self.right_viewbox.update()
+		elif self.ytilestart == 0:
+			self.top_viewbox.set_position(-1)
+			self.bottom_viewbox.set_position(b_view)
+			self.top_viewbox.update()
+			self.bottom_viewbox.update()
+			
+		elif self.ytilestart == map_y - 20 :
+			self.top_viewbox.set_position(t_view)
+			self.bottom_viewbox.set_position(ywindow)
+			self.top_viewbox.update()
+			self.bottom_viewbox.update()
+			
+		if self.xtilestart > 0 and self.xtilestart < map_x -25:
+			self.right_viewbox.set_position(r_view)
+			self.left_viewbox.set_position(l_view)
+			self.left_viewbox.update()
+			self.right_viewbox.update()
+			
+		elif self.xtilestart == 0:
+			self.left_viewbox.set_position(-1)
+			self.right_viewbox.set_position(r_view)
+			self.left_viewbox.update()
+			self.right_viewbox.update()
+			
+		elif self.xtilestart == map_x - 25:
+			self.left_viewbox.set_position(l_view)
+			self.right_viewbox.set_position(xwindow)
+			self.left_viewbox.update()
+			self.right_viewbox.update()
 
 			
 		for collision in empty_list:
@@ -405,20 +374,19 @@ class Player(pygame.sprite.Sprite):
 	#	self.rect.y += self.vspeed
 		window.blit(self.image, self.rect)
 
-#xloc = 416
-#yloc = 320
-xloc = 0
-yloc = 0
-
+xloc = 416
+yloc = 320
 enemyxloc = 64*4
 enemyyloc = 64*4
+
 MAP = "tiledstuff1.tmx"
 big_map = "MASSIVEMAP.tmx"
 little_map = "25x20test.tmx"
 m25x40 = "20x40.tmx"
 m50x20 = "50x20.tmx"
-map_x = 25#Map length and width
-map_y = 40
+
+map_x = 600
+map_y = 480
 
 
 #map_collisions = place_tiles("tiledstuff1.tmx", xwindow, ywindow)
@@ -427,8 +395,7 @@ ninja = Player(xwindow, ywindow)#(self, filename, xloc, yloc)
 ninja.set_image(imagelocation,"ninja32px.png")
 ninja.set_position(xloc,yloc)
 
-overworld = map(imagelocation, m25x40, ninja)
-overworld.set_properties(map_x,map_y)
+overworld = map(imagelocation, big_map, ninja)
 #overworld.load_entire_map(map_x,map_y,0)#do one less than map size?
 overworld_collisions = overworld.collision_layer()
 
@@ -511,10 +478,10 @@ while active:
 
 		event = None
 	overworld.load_player_section()
-	top_viewbox.update()
-	bottom_viewbox.update()
-	left_viewbox.update()
-	right_viewbox.update()
+	#top_viewbox.update()
+	#bottom_viewbox.update()
+	#left_viewbox.update()
+	#right_viewbox.update()
 	empty_list = []
 	ninja.update(collidable_objects, empty_list)
 	first_enemy.update()

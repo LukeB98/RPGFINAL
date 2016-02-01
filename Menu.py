@@ -99,7 +99,45 @@ def set_cursor():
 	
 	ninja_star, mask = pygame.cursors.compile(cursor_ninja_star, black="X", white=".", xor="o")
 	pygame.mouse.set_cursor((24,24), (0,0), ninja_star, mask)
+
+class Menu_sprites(pygame.sprite.Sprite):
+	def __init__(self, pic_path, pic_name):
+		super(Enemy, self).__init__()
+		pygame.sprite.Sprite.__init__(self)
+		self.image = (os.getcwd + "/" + pic_path + "/" + pic_name)
+		self.rect = self.image.get_rect()
+		self.center_x = self.rect.center.x
+		self.center_y = self.rect.center.y
 	
+	def animation(self, (startpos), (endpos), animation_time):
+		#startpos and endpos are the starting and ending x and y positions
+		#animation_time is how long you want the animation to take to occu in milliseconds
+		self.start_x,self.start_y = startpos
+		self.end_x, self.end_y = endpos
+		if self.start_x != self.end_x:#if start_x is to the left, move it right
+			self.x_diff = self.end_x - self.start_x
+
+		if self.start_y != self.end_y:#if start_y is above, move it down
+			self.y_diff = self.end_y - self.start_y
+
+		self.clock_y = pygame.time.Clock()
+		self.clock_x = pygame.time.Clock()
+		
+		if self.x_diff > 0:
+			self.clock_x.set_timer((self.x_diff)/animation_time)
+			
+		elif self.x_diff < 0:
+			self.clock_x.set_timer((self.x_diff -= (-self.x_diff)/animation_time), animation_time)
+		else:
+			self.clock_x.set_timer(None)
+		while True:
+			if self.x_diff > 0:
+				self.clock.set_timer((self.x_diff)/animation_time)
+				
+		self.clock.set_timer(animation_time)
+
+		
+
 class Menu():
 	
 	def __init__(self, imagelocation):
@@ -124,7 +162,6 @@ class Menu():
 		self.menu_y = 640
 		#self.font_rect.x = self.fx
 		#self.font_rect.y = self.fy
-
 	def update(self, object):
 		if object == "Main_menu":#Display main menu animation.
 			if self.menu_y != 50:
@@ -171,4 +208,37 @@ def main_menu():
 main_menu()
 	
 	
-	
+'''
+class Enemy(pygame.sprite.Sprite):
+
+	def __init__(self, xwindow, ywindow):#self, image using for sprite, xstartlocation and y start location
+		super(Enemy, self).__init__()
+		pygame.sprite.Sprite.__init__(self)  #pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.Surface((32,32))
+		self.image.fill(colors["WHITE"])
+		self.set_properties()
+		self.vspeed = 0
+		self.hspeed = 0
+		#self.set_position(characterxpos, characterypos)
+	def set_properties(self):
+		self.rect = self.image.get_rect()
+		self.origin_x = self.rect.centerx
+		self.origin_y = self.rect.centery
+		
+	def set_image(self, imagelocation, filename):
+		self.image = pygame.image.load("{}\{}".format(imagelocation, filename))
+		self.set_properties()
+		
+	def change_speed(self,hchange,vchange):
+		self.hspeed += hchange
+		self.vspeed += vchange
+
+	def set_position(self,x,y):
+		self.rect.x = x #- self.origin_x
+		self.rect.y = y #- self.origin_y
+		
+	def update(self):
+		
+		self.rect.x += self.hspeed
+		self.rect.y += self.vspeed
+		window.blit(self.image, self.rect)'''

@@ -41,7 +41,7 @@ fontrect.center = (ninx, 50)#don't know.  Just include this
 
 #music
 pygame.mixer.music.load(musiclocation +"\Crusade.mp3")
-#pygame.mixer.music.play(-1, 0.0)#Plays infinite times starting at 0.0
+pygame.mixer.music.play(-1, 0.0)#Plays infinite times starting at 0.0
 
 #object.play(), and object.stop() to start and stop sounds
 
@@ -378,8 +378,13 @@ xloc = 416
 yloc = 320
 enemyxloc = 64*4
 enemyyloc = 64*4
+
 MAP = "tiledstuff1.tmx"
 big_map = "MASSIVEMAP.tmx"
+little_map = "25x20test.tmx"
+m25x40 = "20x40.tmx"
+m50x20 = "50x20.tmx"
+
 map_x = 600
 map_y = 480
 
@@ -473,10 +478,10 @@ while active:
 
 		event = None
 	overworld.load_player_section()
-	#top_viewbox.update()
-	#bottom_viewbox.update()
-	#left_viewbox.update()
-	#right_viewbox.update()
+	top_viewbox.update()
+	bottom_viewbox.update()
+	left_viewbox.update()
+	right_viewbox.update()
 	empty_list = []
 	ninja.update(collidable_objects, empty_list)
 	first_enemy.update()
