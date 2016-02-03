@@ -1,4 +1,4 @@
-import pygame, sys, pytmx, os, random, math
+import pygame, sys, pytmx, os, random, math, pdb
 from pytmx import load_pygame
 
 pygame.init() #initilizing the pygame window
@@ -30,19 +30,6 @@ clock = pygame.time.Clock()#in order to set fps with clock.tick(fps)
 imagelocation = (str(os.getcwd()) + "\Pictures")
 musiclocation = (str(os.getcwd()) +  "\Music")
 ninjaImg = pygame.image.load(str(imagelocation) + "\\ninja32px.png")#importing a local image
-
-left_1 = pygame.image.load(str(imagelocation) + "\A_1.png")
-left_2 = pygame.image.load((imagelocation) + "\\A_2.png")
-left_3 = pygame.image.load(str(imagelocation) + "\A_3.png")
-left_4 = pygame.image.load(str(imagelocation) + "\\A_4.png")
-left = pygame.image.load(str(imagelocation) + "\\A_static.png")
-right_1 = pygame.image.load(str(imagelocation) + "\\D_1.png")
-right_2 = pygame.image.load(str(imagelocation) + "\\D_2.png")
-right_3 = pygame.image.load(str(imagelocation) + "\\D_3.png")
-right_4 = pygame.image.load(str(imagelocation) + "\\D_4.png")
-right = pygame.image.load(str(imagelocation) + "\\D_static.png")
-
-
 ninx = xwindow/2#where the image will be placed
 niny = ywindow/2
 
@@ -328,11 +315,7 @@ class Player(pygame.sprite.Sprite):
 	def set_position(self,x,y):
 		self.rect.x = x
 		self.rect.y = y
-	def set_image(self):
-		pass
-		#Need to move map by 32 pixels, then move player by 32 pixels at an incriment of 8ish pixels every number of ms.
-		#if self.dir = "left":
-			
+		
 	def update(self, collidable, viewbox_empty):
 		self.viewbox_collision = viewbox_empty
 		self.rect.x += self.hspeed
@@ -456,7 +439,6 @@ xloc = 0
 yloc = 0
 empty_list = []
 frame_counter = 0
-overworld.load_player_section()
 while active:
 #filename, xwindow, ywindow, xposition, yposition, replace_tiles
 	for event in pygame.event.get():
@@ -495,11 +477,11 @@ while active:
 				ninja.change_speed(-32,0)
 
 		event = None
-	#overworld.load_player_section()
-	#top_viewbox.update()
-	#bottom_viewbox.update()
-	#left_viewbox.update()
-	#right_viewbox.update()
+	overworld.load_player_section()
+	top_viewbox.update()
+	bottom_viewbox.update()
+	left_viewbox.update()
+	right_viewbox.update()
 	empty_list = []
 	ninja.update(collidable_objects, empty_list)
 	first_enemy.update()
